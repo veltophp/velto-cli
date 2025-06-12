@@ -1,0 +1,30 @@
+{
+  "name": "veltophp/velto-cli",
+  "description": "VeltoPHP CLI for managing Velto projects",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+      {
+        "name": "veltophp",
+        "email": "dev@veltophp.com"
+      }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Veltophp\\VeltoCli\\": "src/"
+    }
+  },
+  "bin": [
+    "bin/velto"
+  ],
+  "require": {
+    "php": ">=8.0"
+  },
+  "extra": {
+    "branch-alias": {
+      "dev-main": "1.0-dev"
+    }
+  },
+  "minimum-stability": "stable",
+  "prefer-stability": true
+}

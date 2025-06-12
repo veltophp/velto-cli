@@ -1,0 +1,18 @@
+#!/usr/bin/env php
+<?php
+
+// Ensure this is being run from the root project
+$autoload = getcwd() . '/vendor/autoload.php';
+
+if (!file_exists($autoload)) {
+    fwrite(STDERR, "Autoload file not found at $autoload\n");
+    exit(1);
+}
+
+require $autoload;
+
+use Veltophp\VeltoCli\Console;
+
+$console = new Console();
+
+$console->run($argv);

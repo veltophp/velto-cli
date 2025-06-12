@@ -38,10 +38,10 @@ class Helpers
     {
         self::loadEnv($basePath);
     
-        $driver = self::env('DB_CONNECTION', 'sqlite');
+        $driver = self::env('DB_CONNECTION');
     
         if ($driver === 'sqlite') {
-            $path = self::env('DB_DATABASE', $basePath . '/storage/database.sqlite');
+            $path = self::env('DB_DATABASE');
             if (!file_exists($path)) {
                 touch($path);
             }
@@ -49,11 +49,11 @@ class Helpers
         }
     
         if ($driver === 'mysql') {
-            $host = self::env('DB_HOST', '127.0.0.1');
-            $port = self::env('DB_PORT', '3306');
-            $db = self::env('DB_DATABASE', 'velto');
-            $user = self::env('DB_USERNAME', 'root');
-            $pass = self::env('DB_PASSWORD', '');
+            $host = self::env('DB_HOST');
+            $port = self::env('DB_PORT');
+            $db = self::env('DB_DATABASE');
+            $user = self::env('DB_USERNAME');
+            $pass = self::env('DB_PASSWORD');
             $charset = self::env('DB_CHARSET', 'utf8mb4');
     
             $pdo = new \PDO("mysql:host=$host;port=$port;charset=$charset", $user, $pass);
@@ -71,7 +71,12 @@ class Helpers
             return $pdo;
         }
     
-        throw new \Exception("Unsupported database driver: $driver");
+        echo "\n";
+        echo "❌ Please enable a database driver in your .env file.\n";
+        echo "\n";
+
+        exit(1);
+
     }
     
     public static function uvid(int $length = 32): string

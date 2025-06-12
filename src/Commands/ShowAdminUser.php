@@ -5,6 +5,7 @@ namespace Veltophp\VeltoCli\Commands;
 use Veltophp\VeltoCli\Command;
 use Veltophp\VeltoCli\Config\Helpers;
 use PDO;
+use PDOException;
 
 class ShowAdminUser extends Command
 {
@@ -12,11 +13,21 @@ class ShowAdminUser extends Command
     {
         $pdo = Helpers::getPdoConnection(BASE_PATH);
 
-        $stmt = $pdo->prepare("SELECT user_id, name, email, role, created_at FROM users WHERE role = 'admin'");
-        $stmt->execute();
-        $admins = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        if (!$pdo) {
+            $this->error("❌ Database connection not established.");
+            return;
+        }
 
-        if (count($admins) === 0) {
+        try {
+            $stmt = $pdo->prepare("SELECT user_id, name, email, role, created_at FROM users WHERE role = 'admin'");
+            $stmt->execute();
+            $admins = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            $this->error("❌ Query failed: " . $e->getMessage());
+            return;
+        }
+
+        if (empty($admins)) {
             $this->warning("⚠️  No admin users found.");
             return;
         }

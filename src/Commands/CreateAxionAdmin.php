@@ -5,14 +5,23 @@ namespace Veltophp\VeltoCli\Commands;
 use Veltophp\VeltoCli\Command;
 use Veltophp\VeltoCli\Config\Helpers;
 use PDO;
+use PDOException;
 
 class CreateAxionAdmin extends Command
 {
     public function handle(): void
     {
-        $email = $this->ask("Input Email:");
-        $password = $this->askHidden("Input Password:");
-        $passwordConfirm = $this->askHidden("Confirm Password:");
+        $pdo = Helpers::getPdoConnection(BASE_PATH);
+
+        if (!$pdo) {
+            $this->error("❌ No database connection available. Command aborted.");
+            return;
+        }
+
+        $email = $this->ask("📧  Input Email:");
+        $password = $this->askHidden("🔑  Input Password:");
+        $passwordConfirm = $this->askHidden("🔁 Confirm Password:");
+
         if ($password !== $passwordConfirm) {
             $this->error("❌ Passwords do not match.");
             return;
@@ -30,40 +39,49 @@ class CreateAxionAdmin extends Command
 
         $pdo = Helpers::getPdoConnection(BASE_PATH);
 
-        $check = $pdo->prepare("SELECT COUNT(*) FROM users WHERE email = ?");
-        $check->execute([$email]);
-        if ($check->fetchColumn() > 0) {
-            $this->error("❌ User with this email already exists.");
+        if (!$pdo) {
+            $this->error("❌ Could not connect to the database.");
             return;
         }
 
-        $userId = Helpers::uvid(8);
-        $name = explode('@', $email)[0]; // Default name from email
-        $bio = "Hi, I'm an Axion admin.";
-        $picture = null;
-        $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
-        $now = date('Y-m-d H:i:s');
+        try {
+            $check = $pdo->prepare("SELECT COUNT(*) FROM users WHERE email = ?");
+            $check->execute([$email]);
+            if ($check->fetchColumn() > 0) {
+                $this->error("❌ User with this email already exists.");
+                return;
+            }
 
-        $sql = "INSERT INTO users (
-            user_id, name, bio, picture, email, password, role, email_verified, created_at, updated_at
-        ) VALUES (
-            :user_id, :name, :bio, :picture, :email, :password, :role, :email_verified, :created_at, :updated_at
-        )";
+            $userId = Helpers::uvid(8);
+            $name = explode('@', $email)[0]; // Default name from email
+            $bio = "Hi, I'm an Axion admin.";
+            $picture = null;
+            $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
+            $now = date('Y-m-d H:i:s');
 
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([
-            ':user_id' => $userId,
-            ':name' => $name,
-            ':bio' => $bio,
-            ':picture' => $picture,
-            ':email' => $email,
-            ':password' => $hashedPassword,
-            ':role' => 'admin',
-            ':email_verified' => 1,
-            ':created_at' => $now,
-            ':updated_at' => $now,
-        ]);
+            $sql = "INSERT INTO users (
+                user_id, name, bio, picture, email, password, role, email_verified, created_at, updated_at
+            ) VALUES (
+                :user_id, :name, :bio, :picture, :email, :password, :role, :email_verified, :created_at, :updated_at
+            )";
 
-        $this->info("✅ Axion Admin created successfully!");
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([
+                ':user_id' => $userId,
+                ':name' => $name,
+                ':bio' => $bio,
+                ':picture' => $picture,
+                ':email' => $email,
+                ':password' => $hashedPassword,
+                ':role' => 'admin',
+                ':email_verified' => 1,
+                ':created_at' => $now,
+                ':updated_at' => $now,
+            ]);
+
+            $this->success("✅ Axion Admin created successfully!");
+        } catch (PDOException $e) {
+            $this->error("❌ Failed to create admin: " . $e->getMessage());
+        }
     }
 }

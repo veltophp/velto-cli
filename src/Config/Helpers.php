@@ -34,17 +34,38 @@ class Helpers
         return self::$env[$key] ?? getenv($key) ?: $default;
     }
 
-    public static function getPdoConnection(string $basePath): \PDO
+    public static function getPdoConnection(string $basePath): ?\PDO
     {
         self::loadEnv($basePath);
     
         $driver = self::env('DB_CONNECTION');
     
+        if (!$driver) {
+            echo "\n";
+            echo "ℹ️  No database driver set. Skipping DB connection...\n";
+            echo "\n";
+            return null;
+        }
+    
         if ($driver === 'sqlite') {
             $path = self::env('DB_DATABASE');
+    
+            // Lewati jika file tidak dibutuhkan
+            if (!$path) {
+                echo "⚠️  No SQLite database path specified.\n";
+                return null;
+            }
+    
+            // Cek dan buat foldernya
+            $dir = dirname($path);
+            if (!is_dir($dir)) {
+                mkdir($dir, 0755, true);
+            }
+    
             if (!file_exists($path)) {
                 touch($path);
             }
+    
             return new \PDO('sqlite:' . $path);
         }
     
@@ -56,27 +77,30 @@ class Helpers
             $pass = self::env('DB_PASSWORD');
             $charset = self::env('DB_CHARSET', 'utf8mb4');
     
-            $pdo = new \PDO("mysql:host=$host;port=$port;charset=$charset", $user, $pass);
-            $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+            try {
+                $pdo = new \PDO("mysql:host=$host;port=$port;charset=$charset", $user, $pass);
+                $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
     
-            $stmt = $pdo->query("SHOW DATABASES LIKE " . $pdo->quote($db));
-            if ($stmt->rowCount() === 0) {
-                $pdo->exec("CREATE DATABASE `$db` CHARACTER SET $charset COLLATE {$charset}_unicode_ci");
+                $stmt = $pdo->query("SHOW DATABASES LIKE " . $pdo->quote($db));
+                if ($stmt->rowCount() === 0) {
+                    $pdo->exec("CREATE DATABASE `$db` CHARACTER SET $charset COLLATE {$charset}_unicode_ci");
+                }
+    
+                $dsn = "mysql:host=$host;port=$port;dbname=$db;charset=$charset";
+                $pdo = new \PDO($dsn, $user, $pass);
+                $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+    
+                return $pdo;
+            } catch (\PDOException $e) {
+                echo "❌ Failed to connect to MySQL: " . $e->getMessage() . "\n";
+                exit(1);
             }
-    
-            $dsn = "mysql:host=$host;port=$port;dbname=$db;charset=$charset";
-            $pdo = new \PDO($dsn, $user, $pass);
-            $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-    
-            return $pdo;
         }
     
         echo "\n";
         echo "❌ Please enable a database driver in your .env file.\n";
         echo "\n";
-
         exit(1);
-
     }
     
     public static function uvid(int $length = 32): string

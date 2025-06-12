@@ -14,6 +14,11 @@ class MigrateRollback extends Command
     {
         $db = Helpers::getPdoConnection(BASE_PATH);
 
+        if (!$db) {
+            $this->warning("⚠️  No database connection. Cannot perform rollback.");
+            return;
+        }
+
         $db->exec("
             CREATE TABLE IF NOT EXISTS migrations (
                 name VARCHAR(255) PRIMARY KEY

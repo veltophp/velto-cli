@@ -11,16 +11,27 @@ class MigrateFresh extends Command
 {
     protected string $basePath;
     protected string $migrationPath;
-    protected PDO $db;
+    protected ?PDO $db;
+
 
     public function __construct()
     {
         $this->basePath = defined('BASE_PATH') ? BASE_PATH : getcwd();
         $this->migrationPath = $this->basePath . '/axion/database/migrations';
         $this->db = Helpers::getPdoConnection($this->basePath);
+
+        if (!$this->db) {
+            echo "⚠️  No database connection available. Migration skipped.\n";
+        }
     }
+
     public function handle(): void
     {
+        if (!$this->db) {
+            echo "ℹ️  Skipping migration: no database driver set or Axion not published.\n";
+            return;
+        }
+
         $this->ensureMigrationTable();
         $this->dropAllTables();
         $this->clearSessions();
@@ -29,22 +40,11 @@ class MigrateFresh extends Command
 
         echo "✅ All migrations have been reset and applied successfully.\n";
     }
+
     protected function ensureMigrationTable(): void
     {
         $this->db->exec("CREATE TABLE IF NOT EXISTS migrations (name TEXT PRIMARY KEY)");
     }
-    // protected function dropAllTables(): void
-    // {
-    //     $tables = $this->db->query(
-    //         "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'"
-    //     )->fetchAll(PDO::FETCH_COLUMN);
-
-    //     foreach ($tables as $table) {
-    //         if ($table === 'migrations') continue;
-    //         $this->db->exec("DROP TABLE IF EXISTS {$table}");
-    //         echo "🗑️ Dropped table: {$table}\n";
-    //     }
-    // }
 
     protected function dropAllTables(): void
     {

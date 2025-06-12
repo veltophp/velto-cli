@@ -6,7 +6,6 @@ use Veltophp\VeltoCli\Command;
 use PDO;
 use Veltophp\VeltoCli\Config\Helpers;
 
-
 class Migrate extends Command
 {
     const MIGRATION_PATH = BASE_PATH . '/axion/database/migrations';
@@ -14,6 +13,11 @@ class Migrate extends Command
     public function handle(): void
     {
         $db = Helpers::getPdoConnection(BASE_PATH);
+
+        if (!$db) {
+            $this->warning("⚠️  No database connection. Skipping migration.\n");
+            return;
+        }
 
         $db->exec("
             CREATE TABLE IF NOT EXISTS migrations (
@@ -65,6 +69,7 @@ class Migrate extends Command
             $this->info("✅ Nothing to migrate.");
         }
     }
+
     private function getMigrationClassName(string $file): ?string
     {
         $content = file_get_contents($file);

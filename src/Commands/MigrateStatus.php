@@ -14,6 +14,11 @@ class MigrateStatus extends Command
     {
         $db = Helpers::getPdoConnection(BASE_PATH);
 
+        if (!$db) {
+            $this->warning("⚠️  No database connection. Cannot check migration status.\n");
+            return;
+        }
+
         // Pastikan tabel migrations ada
         $db->exec("
             CREATE TABLE IF NOT EXISTS migrations (
@@ -30,8 +35,7 @@ class MigrateStatus extends Command
         $migratedCount = 0;
 
         echo "\n";
-        echo "Migration Status:\n";
-        echo "\n";
+        echo "Migration Status:\n\n";
 
         foreach ($files as $file) {
             $filename = basename($file, '.php');
@@ -44,6 +48,6 @@ class MigrateStatus extends Command
             }
         }
 
-        echo "\nMigrated: {$migratedCount}\n";
+        echo "\nMigrated: {$migratedCount} / {$totalFiles}\n";
     }
 }

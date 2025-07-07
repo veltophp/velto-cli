@@ -1,6 +1,11 @@
 #!/usr/bin/env php
 <?php
 
+if (!defined('BASE_PATH')) {
+    define('BASE_PATH', dirname(__DIR__));
+}
+
+
 require __DIR__ . '/../vendor/autoload.php';
 
 use Veltophp\VeltoCli\Console;

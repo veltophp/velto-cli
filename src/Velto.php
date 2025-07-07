@@ -37,7 +37,7 @@ class Velto
 
         if (count($argv) < 2) {
             echo "\n";
-            echo " Velto-CLI Version 1.0 | VeltoPHP \n";
+            echo " Velto-CLI Version 2.0 | VeltoPHP \n";
             echo "\n";
             echo " ==>  No command given <==\n";
             echo "\n";
@@ -53,7 +53,7 @@ class Velto
             $this->commands[$commandName]->handle($args);
         } else {
             echo "\n";
-            echo " Velto-CLI Version 1.0 | VeltoPHP \n";
+            echo " Velto-CLI Version 2.0 | VeltoPHP \n";
             echo "\n";
             echo " ==>  Command Not Found! <==\n";
             echo "\n";

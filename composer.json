@@ -1,0 +1,19 @@
+{
+  "name": "veltophp/velto-cli",
+  "description": "VeltoPHP CLI tool for development and code generation",
+  "type": "library",
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "Veltophp\\VeltoCli\\": "src/"
+    }
+  },
+  "bin": [
+    "bin/velto"
+  ],
+  "require": {
+    "php": "^8.3"
+  },
+  "minimum-stability": "stable",
+  "prefer-stable": true
+}

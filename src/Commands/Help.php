@@ -30,6 +30,8 @@ class Help
         echo "  \033[36mmake:module (Modul)\033[0m                          Create a new module with controllers, models, views, routes, and migration\n";
         echo "  \033[36mmake:controller -(Module) -(Controller)\033[0m      Create a new controller inside an existing module\n";
         echo "  \033[36mmake:model -(Module) -(Model) -m\033[0m             Create a new model inside a module with optional migration\n";
+        echo "  \033[36mmake:user:admin \033[0m                             Create an admin user for role admin\n";
+
         echo "\n";
 
         echo "  \033[36mlist:modules\033[0m                                 List all registered modules\n";

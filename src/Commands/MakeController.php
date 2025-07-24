@@ -27,24 +27,29 @@ class MakeController extends Command
         $controller = ltrim($controllerName, '-');
 
         $modulePath = "{$this->basePath}/modules/{$module}";
+        $controllerDir = "{$modulePath}/Controllers";
 
         if (!is_dir($modulePath)) {
             $this->error("❌ Module '{$module}' does not exist.");
             return;
         }
 
+        if (!is_dir($controllerDir)) {
+            mkdir($controllerDir, 0755, true);
+        }
+
         $controllerClass = str_ends_with($controller, 'Controller')
             ? $controller
             : $controller . 'Controller';
 
-        $controllerFile = "{$modulePath}/{$controllerClass}.php";
+        $controllerFile = "{$controllerDir}/{$controllerClass}.php";
 
         if (file_exists($controllerFile)) {
-            $this->error("❌ Controller '{$controllerClass}' already exists in module '{$module}'.");
+            $this->error("❌ Controller '{$controllerClass}' already exists in module '{$module}/Controllers'.");
             return;
         }
 
-        $namespace = "Modules\\{$module}";
+        $namespace = "Modules\\{$module}\\Controllers";
 
         $content = <<<PHP
 <?php
@@ -94,9 +99,8 @@ class {$controllerClass} extends Controller
 
 PHP;
 
-
         file_put_contents($controllerFile, $content);
 
-        $this->info("✅ Controller '{$controllerClass}' created at modules/{$module}/{$controllerClass}.php");
+        $this->info("✅ Controller '{$controllerClass}' created at modules/{$module}/Controllers/{$controllerClass}.php");
     }
 }

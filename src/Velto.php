@@ -23,6 +23,7 @@ class Velto
             'make:module' => new Commands\MakeModule(),
             'make:controller' => new Commands\MakeController(),
             'make:model' => new Commands\MakeModel(),
+            'make:user:admin' => new Commands\MakeUserAdmin(),
             'list:modules' => new Commands\ListModules(),
             'remove:module' => new Commands\RemoveModule(),
             'start' => new Commands\StartCommand(),

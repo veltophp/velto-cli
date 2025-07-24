@@ -33,6 +33,8 @@ class MakeModule extends Command
         mkdir("{$modulePath}", 0755, true);
         mkdir("{$modulePath}/Views", 0755, true);
         mkdir("{$modulePath}/Models", 0755, true);
+        mkdir("{$modulePath}/Controllers", 0755, true);
+
     
         $this->info("✅ Module '{$moduleName}' created at modules/{$moduleSlug}");
     
@@ -48,17 +50,17 @@ class MakeModule extends Command
     protected function createController(string $moduleName, string $modulePath): void
     {
         $controllerName = "{$moduleName}Controller";
-        $controllerFile = "{$modulePath}/{$controllerName}.php";
+        $controllerFile = "{$modulePath}/Controllers/{$controllerName}.php";
         $moduleSlug = strtolower($moduleName);
 
         $content = <<<PHP
 <?php
 
-namespace Modules\\{$moduleName};
+namespace Modules\\{$moduleName}\\Controllers;
 
 use Velto\Core\Controller\Controller;
 use Velto\Core\Request\Request;
-use Modules\Auth\Models\\{$moduleName};
+use Modules\\{$moduleName}\\Models\\{$moduleName};
 
 class {$controllerName} extends Controller
 {
@@ -136,7 +138,7 @@ HTML;
 <?php
 
 use Velto\\Core\\Route\\Route;
-use Modules\\{$moduleName}\\{$moduleName}Controller;
+use Modules\\{$moduleName}\\Controllers\\{$moduleName}Controller;
 
 Route::get('/{$moduleSlug}', [{$moduleName}Controller::class, '{$moduleSlug}'])->name('{$moduleSlug}');
 PHP;
@@ -154,7 +156,8 @@ PHP;
 <?php
 
 use Velto\\Core\\Route\\Route;
-use Modules\\{$moduleName}\\{$moduleName}Controller;
+use Modules\\{$moduleName}\\Controllers\\{$moduleName}Controller;
+
 
 // Define API routes here
 // Route::get('/api/{$moduleSlug}', [{$moduleName}Controller::class, '{$moduleSlug}']);

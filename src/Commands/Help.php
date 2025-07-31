@@ -24,7 +24,7 @@ class Help
         echo "\n";
 
         echo "  \033[36mstart\033[0m                                        Start local development server (auto port + local IP shown)\n";
-        echo "  \033[36mstart:watch\033[0m                                  Start dev server with auto view reload\n";
+        echo "  \033[36mdeploy\033[0m                                       Start deploy program into production server\n";
         echo "\n";
 
         echo "  \033[36mmake:module (Modul)\033[0m                          Create a new module with controllers, models, views, routes, and migration\n";

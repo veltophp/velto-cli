@@ -27,6 +27,7 @@ class Velto
             'list:modules' => new Commands\ListModules(),
             'remove:module' => new Commands\RemoveModule(),
             'start' => new Commands\StartCommand(),
+            'deploy' => new Commands\Deploy(),
             '-version' => new Commands\Version(),
             '-v' => new Commands\Version(),
         ];

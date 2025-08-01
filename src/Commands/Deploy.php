@@ -6,49 +6,51 @@ use Veltophp\VeltoCli\Command;
 
 class Deploy extends Command
 {
-    public function handle(): void
+    public function handle(array $args = []): void
     {
-        // Dapatkan root project (misalnya tempat composer.json berada)
+        // Temukan root project (tempat composer.json berada)
         $basePath = $this->findProjectRoot();
 
-        $target     = $basePath . '/public';
-        $link       = $basePath . '/public_html';
-        $envSource  = $basePath . '/.env.example';
-        $envTarget  = $basePath . '/.env';
+        $targetDirName = $args['--link-to'] ?? 'public_html'; // default: public_html
+        $targetSymlink = $basePath . '/../' . $targetDirName;
+        $sourcePublic  = $basePath . '/public';
+
+        $envSource = $basePath . '/.env.example';
+        $envTarget = $basePath . '/.env';
 
         // ===== 1. SYMLINK =====
-        if (!is_dir($target)) {
-            $this->warning("❌ Target directory not found: $target");
-        } elseif (is_link($link)) {
-            $this->info("🔁 Symlink already exists: $link");
-        } elseif (file_exists($link)) {
-            $this->warning("⚠️  public_html already exists as a real folder. Please remove or rename it first.");
-        } elseif (symlink($target, $link)) {
+        if (!is_dir($sourcePublic)) {
+            $this->warning("❌ Public folder not found: $sourcePublic");
+        } elseif (is_link($targetSymlink)) {
+            $this->info("🔁 Symlink already exists: $targetSymlink");
+        } elseif (file_exists($targetSymlink)) {
+            $this->warning("⚠️  $targetDirName already exists as a real folder. Please remove or rename it first.");
+        } elseif (symlink($sourcePublic, $targetSymlink)) {
             $this->info("✅ Symlink created successfully:");
-            $this->info("   $link → $target");
+            $this->info("   $targetSymlink → $sourcePublic");
         } else {
             $this->warning("❌ Failed to create symlink. Check permissions or path.");
         }
 
-        // ===== 2. ASK TO COPY .env =====
+        // ===== 2. COPY .env (optional) =====
         if (!file_exists($envSource)) {
-            $this->warning("❌ .env.example file not found at root.");
+            $this->warning("❌ .env.example not found.");
             return;
         }
 
         if (file_exists($envTarget)) {
-            $this->info("📄 .env file already exists. Skipping copy.");
+            $this->info("📄 .env already exists. Skipping.");
             return;
         }
 
-        echo "❓ Do you want to copy .env.example to .env? (y/n): ";
+        echo "❓ Copy .env.example to .env? (y/n): ";
         $answer = strtolower(trim(fgets(STDIN)));
 
         if ($answer === 'y') {
             if (copy($envSource, $envTarget)) {
-                $this->info("✅ .env file created from .env.example");
+                $this->info("✅ .env copied from .env.example");
             } else {
-                $this->warning("❌ Failed to copy .env.example to .env");
+                $this->warning("❌ Failed to copy .env.example");
             }
         } else {
             $this->info("ℹ️  Skipped .env copy.");

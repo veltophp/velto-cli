@@ -8,12 +8,13 @@ class Deploy extends Command
 {
     public function handle(): void
     {
-        $basePath = getcwd();
+        // Dapatkan root project (misalnya tempat composer.json berada)
+        $basePath = $this->findProjectRoot();
 
-        $target = $basePath . '/velto-site/public';
-        $link   = $basePath . '/public_html';
-        $envSource = $basePath . '/.env.example';
-        $envTarget = $basePath . '/.env';
+        $target     = $basePath . '/public';
+        $link       = $basePath . '/public_html';
+        $envSource  = $basePath . '/.env.example';
+        $envTarget  = $basePath . '/.env';
 
         // ===== 1. SYMLINK =====
         if (!is_dir($target)) {
@@ -52,5 +53,19 @@ class Deploy extends Command
         } else {
             $this->info("ℹ️  Skipped .env copy.");
         }
+    }
+
+    /**
+     * Menemukan root project berdasarkan keberadaan composer.json
+     */
+    protected function findProjectRoot(): string
+    {
+        $dir = getcwd();
+
+        while ($dir !== '/' && !file_exists($dir . '/composer.json')) {
+            $dir = dirname($dir);
+        }
+
+        return $dir;
     }
 }
